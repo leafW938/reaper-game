@@ -18,7 +18,7 @@
 Players receive impossible survival scenarios (like "trapped in a burning spaceship toilet") and must write creative escape plans. An AI-powered Reaper evaluates their responses across 6 dimensions and decides their fate with personality-driven commentary.
 
 **🌏 Current Status**: Chinese language interface with rich cultural references  
-**🔄 Next Iteration**: Collaborative development with [@chaos487](https://github.com/chaos487) for international expansion  
+**🔄 Next Iteration**: Collaborative development with [@chaos487](https://github.com/chaos487) for international expansion and enriching the core loop.
 **🌐 Browser Translation**: Chrome/Edge auto-translate provides excellent English experience
 
 ## 💻 Technical Highlights
@@ -49,7 +49,7 @@ Players receive impossible survival scenarios (like "trapped in a burning spaces
 | **Frontend** | Cocos Creator, HTML5, JavaScript | Game UI and interaction |
 | **Backend** | Node.js, Express.js | API and game logic |
 | **Database** | SQLite | Player data and analytics |
-| **AI** | DeepSeek API | Content generation and evaluation |
+| **AI** | DeepSeek API | 
 | **Deployment** | Tencent Cloud, GitHub Pages | Production hosting |
 | **Testing** | Custom test suites | API and functionality testing |
 
