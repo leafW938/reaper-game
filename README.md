@@ -5,7 +5,7 @@
 ## 🚀 Live Demo
 
 - **🎮 Play Online**: [GitHub Pages Demo](https://leafw938.github.io/reaper-game/)
-- **🔗 API Health**: [Backend Status](https://your-tencent-cloud-url/health)
+- **🔗 API Health**: [Backend Status](http://106.52.15.70/health)
 - **📱 Mobile Responsive**: Optimized for all devices
 
 ### 🌍 Language Note
