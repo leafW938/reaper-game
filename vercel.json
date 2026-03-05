@@ -1,0 +1,15 @@
+{
+  "rewrites": [
+    { "source": "/question/random", "destination": "/api/question" },
+    { "source": "/reaper", "destination": "/api/reaper" },
+    { "source": "/health", "destination": "/api/health" },
+    { "source": "/the_reaper_game/question/random", "destination": "/api/question" },
+    { "source": "/the_reaper_game/reaper", "destination": "/api/reaper" },
+    { "source": "/the_reaper_game/health", "destination": "/api/health" }
+  ],
+  "functions": {
+    "api/reaper.js": {
+      "maxDuration": 60
+    }
+  }
+}
