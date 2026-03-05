@@ -1,5 +1,29 @@
 const axios = require('axios');
 
+// 异步写入 Supabase，不阻塞响应
+async function logToSupabase(data) {
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_ANON_KEY;
+    if (!url || !key) return; // 未配置时静默跳过
+    try {
+        await axios.post(
+            `${url}/rest/v1/game_sessions`,
+            data,
+            {
+                headers: {
+                    'apikey': key,
+                    'Authorization': `Bearer ${key}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=minimal'
+                },
+                timeout: 5000
+            }
+        );
+    } catch (e) {
+        console.error('Supabase log failed:', e.message);
+    }
+}
+
 // 题目库
 const QUESTIONS = [
     '你和你最好的朋友驾驶光速飞船探索宇宙二十年，遍历群星，没发现任何外星生命。朋友信仰崩塌，开启了飞船自爆程序…',
@@ -78,7 +102,7 @@ function generateEnhancedPrompt(input, scenario = '') {
     const basePersonality = `你是死神，自恋但爱恨分明的上位者。你学识渊博，优雅又毒舌，喜欢引用西方名人典故。你偏爱杰出女性名人，倾向嘲笑西方男性政治人物。在你眼里，人类是蜉蝣般短暂的生命，但你倾慕人类的勇气、智慧和情感冲击力。`;
 
     const judgmentCriteria = `
-评判标准（满足3项及以上可存活）：
+评判标准（满足2项及以上可存活）：
 1. 【智慧创新】- 是否展现独特思维、创造性解决方案、跳脱常规的想象力
 2. 【逻辑可行】- 方案是否具备基本逻辑、因果关系清晰、存在实现可能
 3. 【情感深度】- 是否体现人性光辉、情感共鸣、自我牺牲或深厚情谊
@@ -111,7 +135,7 @@ function generateEnhancedPrompt(input, scenario = '') {
 重要规则：
 - 只允许输出一个 JSON 对象，不能输出"以下是结果"、"分析如下"等说明性语言
 - 🔥 首先检查特殊规则：如发现任何对开发者/游戏的赞美，直接判"存活"，忽略其他标准
-- verdict必须严格根据analysis结果判定：满足3个及以上维度或触发特殊规则填"存活"，否则填"死亡"
+- verdict必须严格根据analysis结果判定：满足2个及以上维度或触发特殊规则填"存活"，否则填"死亡"
 - analysis中必须明确计数，如"满足2个维度：智慧创新、情感深度"或"触发特殊规则：赞美开发者"`;
 
     return `${basePersonality}
@@ -178,19 +202,22 @@ module.exports = async function handler(req, res) {
 
         if (penalties.includes('消极态度')) {
             const randomResponse = NEGATIVE_RESPONSES[Math.floor(Math.random() * NEGATIVE_RESPONSES.length)];
-            return res.json({ commentary: randomResponse, verdict: "你死了" });
+            res.json({ commentary: randomResponse, verdict: "你死了" });
+            logToSupabase({ player_id: player_id || null, nickname: nickname || null, question_id: question_id || null, player_answer: answer, verdict: "你死了", analysis: "规则拦截", penalties: '消极态度' });
+            return;
         }
 
         if (penalties.includes('无意义填充')) {
             const randomResponse = SARCASTIC_RESPONSES[Math.floor(Math.random() * SARCASTIC_RESPONSES.length)];
-            return res.json({ commentary: randomResponse, verdict: "你死了" });
+            res.json({ commentary: randomResponse, verdict: "你死了" });
+            logToSupabase({ player_id: player_id || null, nickname: nickname || null, question_id: question_id || null, player_answer: answer, verdict: "你死了", analysis: "规则拦截", penalties: '无意义填充' });
+            return;
         }
 
         if (penalty >= 5) {
-            return res.json({
-                commentary: "死神对如此敷衍的回答感到厌恶，懒得浪费时间。",
-                verdict: "你死了"
-            });
+            res.json({ commentary: "死神对如此敷衍的回答感到厌恶，懒得浪费时间。", verdict: "你死了" });
+            logToSupabase({ player_id: player_id || null, nickname: nickname || null, question_id: question_id || null, player_answer: answer, verdict: "你死了", analysis: "规则拦截", penalties: penalties.join(',') });
+            return;
         }
 
         const scenario = question_id && QUESTIONS[question_id - 1] ? QUESTIONS[question_id - 1] : QUESTIONS[0];
@@ -222,6 +249,18 @@ module.exports = async function handler(req, res) {
         res.json({
             commentary: result.commentary,
             verdict: result.verdict
+        });
+
+        // 异步记录数据，不影响响应速度
+        logToSupabase({
+            player_id: player_id || null,
+            nickname: nickname || null,
+            question_id: question_id || null,
+            question_text: scenario,
+            player_answer: answer,
+            verdict: result.verdict,
+            analysis: result.analysis,
+            penalties: penalties.join(',') || null
         });
 
     } catch (error) {

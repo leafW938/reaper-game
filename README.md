@@ -4,8 +4,8 @@
 
 ## 🚀 Live Demo
 
-- **🎮 Play Online**: [GitHub Pages Demo](https://leafw938.github.io/reaper-game/)
-- **🔗 API Health**: [Backend Status](http://106.52.15.70/health)
+- **🎮 Play Online**: [Live Demo](https://reaper-game-sigma.vercel.app)
+- **🔗 API Health**: [Backend Status](https://reaper-game-sigma.vercel.app/health)
 - **📱 Mobile Responsive**: Optimized for all devices
 
 ### 🌍 Language Note
